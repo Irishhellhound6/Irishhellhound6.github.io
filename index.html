@@ -3,8 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>The Simpsons Daily Guessing Game</title>
-  <!-- Add the viewport meta tag for responsiveness -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     /* Global styling and centering */
     body {
@@ -19,7 +17,6 @@
       max-width: 1200px;
       margin: auto;
       padding: 20px;
-      box-sizing: border-box;
     }
     /* Home Menu styling (no background image now) */
     #home-menu, #splash-screen {
@@ -27,7 +24,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
+      height: 100vh;
       text-align: center;
       /* Removed the background image */
     }
@@ -47,8 +44,6 @@
       cursor: pointer;
       box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
       transition: background-color 0.3s;
-      width: 80%;
-      max-width: 300px;
     }
     #home-menu button:hover, #splash-screen button:hover {
       background-color: #c38e00;
@@ -61,32 +56,27 @@
     h2 {
       margin-top: 20px;
       color: #333;
-      font-size: 2em;
     }
     p {
       font-size: 1.1em;
-      padding: 0 10px;
     }
     /* Table styling for guesses and history with a cartoonish Simpsons flair */
     table {
       margin: 20px auto;
       border-collapse: separate;
       border-spacing: 0;
-      width: 100%;
-      max-width: 1000px;
+      width: 90%;
+      max-width: 1200px;
       background-color: #fff;
       /* Simpson-themed thick yellow border with rounded corners */
       border: 4px solid #e2a900;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.3);
-      overflow-x: auto;
-      display: block;
     }
     th, td {
       border: 1px solid #e2a900;
       padding: 8px;
       text-align: center;
-      font-size: 0.9em;
     }
     th {
       background-color: #f7d488;
@@ -109,13 +99,12 @@
     .autocomplete-container {
       position: relative;
       display: inline-block;
-      width: 90%;
-      max-width: 320px;
+      width: 320px;
       margin-bottom: 20px;
     }
     input[type="text"] {
       font-size: 1.2em;
-      padding: 10px;
+      padding: 5px;
       width: 100%;
       text-transform: uppercase;
       box-sizing: border-box;
@@ -136,85 +125,17 @@
       border-radius: 0 0 5px 5px;
     }
     .suggestion-item {
-      padding: 10px;
+      padding: 5px;
       cursor: pointer;
     }
     .suggestion-item:hover { background: #eee; }
     button {
       font-size: 1.2em;
-      padding: 10px 20px;
+      padding: 5px 10px;
       margin: 10px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      width: 80%;
-      max-width: 300px;
-    }
-
-    /* Responsive Styles */
-    @media (max-width: 768px) {
-      #home-menu h1, #splash-screen h1 {
-        font-size: 2.5em;
-      }
-      h2 {
-        font-size: 1.8em;
-      }
-      p {
-        font-size: 1em;
-      }
-      #home-menu button, #splash-screen button, button {
-        font-size: 1.2em;
-        padding: 10px;
-        max-width: 250px;
-      }
-      table {
-        max-width: 100%;
-      }
-      th, td {
-        font-size: 0.85em;
-        padding: 6px;
-      }
-      .autocomplete-container {
-        width: 100%;
-        max-width: 280px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      #home-menu h1, #splash-screen h1 {
-        font-size: 2em;
-      }
-      h2 {
-        font-size: 1.5em;
-      }
-      p {
-        font-size: 0.95em;
-      }
-      #home-menu button, #splash-screen button, button {
-        font-size: 1em;
-        padding: 8px;
-        max-width: 220px;
-      }
-      table {
-        width: 100%;
-      }
-      th, td {
-        font-size: 0.75em;
-        padding: 4px;
-      }
-      .autocomplete-container {
-        width: 100%;
-        max-width: 240px;
-      }
-    }
-
-    /* Optional: Make tables horizontally scrollable on small screens */
-    @media (max-width: 600px) {
-      table {
-        display: block;
-        overflow-x: auto;
-        white-space: nowrap;
-      }
     }
   </style>
 </head>
@@ -237,7 +158,7 @@
     <h2>Guess the Secret Simpsons Character</h2>
     <p>Compare the attributes to find the secret character. You have 6 guesses per day.</p>
     <div class="autocomplete-container">
-      <input type="text" id="guessInput" placeholder="Enter character name" autocomplete="off" autofocus>
+      <input type="text" id="guessInput" placeholder="Enter character name" autofocus>
       <div id="suggestions"></div>
     </div>
     <button id="submitGuess">Guess</button>
