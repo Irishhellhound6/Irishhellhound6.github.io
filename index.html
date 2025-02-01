@@ -18,23 +18,19 @@
     *, *::before, *::after {
       box-sizing: inherit;
     }
-    
     body {
       font-family: Arial, sans-serif;
       background: linear-gradient(135deg, #fdd835, #fbc02d);
       color: #333;
       text-align: center;
-      /* Ensure background covers all space */
       min-height: 100%;
     }
-    
     .container {
       width: 100%;
       max-width: 1200px;
       margin: 0 auto;
       padding: 10px;
     }
-    
     /* Home Menu & Splash Screen styling */
     #home-menu, #splash-screen {
       display: flex;
@@ -45,14 +41,12 @@
       text-align: center;
       padding: 10px;
     }
-    
     #home-menu h1, #splash-screen h1 {
       font-size: 3em;
       margin-bottom: 20px;
       color: #e2a900;
       text-shadow: 2px 2px 4px #555;
     }
-    
     #home-menu button, #splash-screen button {
       font-size: 1.5em;
       padding: 10px 20px;
@@ -65,32 +59,26 @@
       transition: background-color 0.3s;
       margin-top: 10px;
     }
-    
     #home-menu button:hover, #splash-screen button:hover {
       background-color: #c38e00;
     }
-    
     /* Game and History Containers */
     #game-container, #history-container {
       display: none;
       margin-top: 20px;
     }
-    
     h2 {
       margin-top: 20px;
       color: #333;
     }
-    
     p {
       font-size: 1.1em;
     }
-    
-    /* Make table container use full width */
+    /* Table container to avoid horizontal scroll */
     .table-container {
       width: 100%;
       overflow-x: auto;
     }
-    
     /* Table styling with Simpsons-themed flair */
     table {
       width: 100%;
@@ -103,36 +91,31 @@
       margin: 20px auto;
       table-layout: fixed;
     }
-    
     th, td {
       border: 1px solid #e2a900;
       padding: 8px 4px;
       text-align: center;
       word-wrap: break-word;
+      white-space: nowrap;  /* Prevent text wrapping */
       font-size: 0.95em;
     }
-    
     th {
       background-color: #f7d488;
       font-weight: bold;
     }
-    
     .correct {
       background-color: #6aaa64;
       color: white;
     }
-    
     .incorrect {
       background-color: #787c7e;
       color: white;
     }
-    
     .hint {
       font-size: 0.8em;
       margin-top: 3px;
       color: #333;
     }
-    
     /* Autocomplete styling */
     .autocomplete-container {
       position: relative;
@@ -141,7 +124,6 @@
       max-width: 320px;
       margin-bottom: 20px;
     }
-    
     input[type="text"] {
       font-size: 1.2em;
       padding: 5px;
@@ -150,7 +132,6 @@
       border: 2px solid #ccc;
       border-radius: 5px;
     }
-    
     #suggestions {
       position: absolute;
       top: 100%;
@@ -164,16 +145,13 @@
       z-index: 1000;
       border-radius: 0 0 5px 5px;
     }
-    
     .suggestion-item {
       padding: 5px;
       cursor: pointer;
     }
-    
     .suggestion-item:hover {
       background: #eee;
     }
-    
     button {
       font-size: 1.2em;
       padding: 5px 10px;
@@ -182,7 +160,6 @@
       border-radius: 5px;
       cursor: pointer;
     }
-    
     /* Additional media queries for phones */
     @media (max-width: 600px) {
       h1 { font-size: 2.5em; }
@@ -225,12 +202,11 @@
             <th>Gender</th>
             <th>Simpson?</th>
             <th>Appearances</th>
-            <th>Hair Color</th>
             <th>Weight</th>
           </tr>
         </thead>
         <tbody>
-          <!-- Guess rows will be appended here -->
+          <!-- Guess rows go here -->
         </tbody>
       </table>
     </div>
@@ -250,7 +226,7 @@
           </tr>
         </thead>
         <tbody>
-          <!-- History rows will be appended here -->
+          <!-- History rows go here -->
         </tbody>
       </table>
     </div>
@@ -260,75 +236,70 @@
     /*****************************
      * Characters Data           *
      *****************************/
-    // The characters array is a curated list of 100 important Simpsons characters,
-    // including the Simpson family, Flanders family, Bouvier sisters, and many recurring characters.
-    // Data values (age, appearances, hair color, weight) are approximations based on sources such as Wikipedia and Simpsons Wiki.
+    // The characters array is now a curated list of 100 important Simpsons characters.
+    // Data such as age ranges, appearance counts (each episode counts once), and weight are approximate.
     const characters = [
-      { name: "HOMER SIMPSON",         ageRange: "36-45", ageMin: 36, ageMax: 45, gender: "Male",   simpson: true,  appearances: 700,  hairColor: "Bald",    weight: 300 },
-      { name: "MARGE SIMPSON",         ageRange: "36-45", ageMin: 36, ageMax: 45, gender: "Female", simpson: true,  appearances: 700,  hairColor: "Blue",    weight: 150 },
-      { name: "BART SIMPSON",          ageRange: "8-12",  ageMin: 8,  ageMax: 12, gender: "Male",   simpson: true,  appearances: 700,  hairColor: "Blonde",  weight: 70 },
-      { name: "LISA SIMPSON",          ageRange: "8-12",  ageMin: 8,  ageMax: 12, gender: "Female", simpson: true,  appearances: 700,  hairColor: "Yellow",  weight: 80 },
-      { name: "MAGGIE SIMPSON",        ageRange: "0-4",   ageMin: 0,  ageMax: 4,  gender: "Female", simpson: true,  appearances: 700,  hairColor: "Yellow",  weight: 20 },
-      { name: "ABRAHAM SIMPSON",       ageRange: "80-90", ageMin: 80, ageMax: 90, gender: "Male",   simpson: true,  appearances: 170, hairColor: "Grey",    weight: 180 },
-      { name: "MONA SIMPSON",          ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Female", simpson: true,  appearances: 30,  hairColor: "Brown",   weight: 140 },
-      { name: "MR. BURNS",             ageRange: "80-90", ageMin: 80, ageMax: 90, gender: "Male",   simpson: false, appearances: 408, hairColor: "Grey",    weight: 150 },
-      { name: "WAYLON SMITHERS",       ageRange: "35-45", ageMin: 35, ageMax: 45, gender: "Male",   simpson: false, appearances: 209, hairColor: "Brown",   weight: 140 },
-      { name: "NED FLANDERS",          ageRange: "35-45", ageMin: 35, ageMax: 45, gender: "Male",   simpson: false, appearances: 303, hairColor: "Brown",   weight: 150 },
-      { name: "MAUDE FLANDERS",        ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Female", simpson: false, appearances: 50,  hairColor: "Grey",    weight: 140 },
-      { name: "ROD FLANDERS",          ageRange: "10-15", ageMin: 10, ageMax: 15, gender: "Male",   simpson: false, appearances: 150, hairColor: "Brown",   weight: 70 },
-      { name: "TODD FLANDERS",         ageRange: "10-15", ageMin: 10, ageMax: 15, gender: "Male",   simpson: false, appearances: 150, hairColor: "Brown",   weight: 70 },
-      { name: "PATTY BOUVIER",         ageRange: "35-45", ageMin: 35, ageMax: 45, gender: "Female", simpson: false, appearances: 200, hairColor: "Brown",   weight: 130 },
-      { name: "SELMA BOUVIER",         ageRange: "35-45", ageMin: 35, ageMax: 45, gender: "Female", simpson: false, appearances: 200, hairColor: "Grey",    weight: 135 },
-      { name: "MOE SZYSLAK",           ageRange: "45-55", ageMin: 45, ageMax: 55, gender: "Male",   simpson: false, appearances: 500, hairColor: "Bald",    weight: 200 },
-      { name: "BARNEY GUMBLE",         ageRange: "35-45", ageMin: 35, ageMax: 45, gender: "Male",   simpson: false, appearances: 350, hairColor: "Brown",   weight: 250 },
-      { name: "LENNY LEONARD",         ageRange: "35-45", ageMin: 35, ageMax: 45, gender: "Male",   simpson: false, appearances: 300, hairColor: "Brown",   weight: 180 },
-      { name: "CARL CARLSON",          ageRange: "35-45", ageMin: 35, ageMax: 45, gender: "Male",   simpson: false, appearances: 300, hairColor: "Brown",   weight: 180 },
-      { name: "COMIC BOOK GUY",        ageRange: "35-45", ageMin: 35, ageMax: 45, gender: "Male",   simpson: false, appearances: 250, hairColor: "Grey",    weight: 190 },
-      { name: "SIDESHOW BOB",          ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 14,  hairColor: "Brown",   weight: 160 },
-      { name: "SIDESHOW MEL",          ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 8,   hairColor: "Blonde",  weight: 165 },
-      { name: "KRUSTY THE CLOWN",      ageRange: "45-55", ageMin: 45, ageMax: 55, gender: "Male",   simpson: false, appearances: 20,  hairColor: "None",    weight: 180 },
-      { name: "PRINCIPAL SKINNER",     ageRange: "50-60", ageMin: 50, ageMax: 60, gender: "Male",   simpson: false, appearances: 230, hairColor: "Brown",   weight: 160 },
-      { name: "EDNA KRABAPPEL",        ageRange: "45-55", ageMin: 45, ageMax: 55, gender: "Female", simpson: false, appearances: 140, hairColor: "Grey",    weight: 140 },
-      { name: "AGNES SKINNER",         ageRange: "60-70", ageMin: 60, ageMax: 70, gender: "Female", simpson: false, appearances: 60,  hairColor: "Grey",    weight: 120 },
-      { name: "GROUNDSKEEPER WILLIE",  ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 180, hairColor: "Red",     weight: 190 },
-      { name: "DR. HIBBERT",          ageRange: "50-60", ageMin: 50, ageMax: 60, gender: "Male",   simpson: false, appearances: 200, hairColor: "Grey",    weight: 170 },
-      { name: "CHIEF WIGGUM",          ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 180, hairColor: "Brown",   weight: 180 },
-      { name: "MILHOUSE VAN HOUTEN",   ageRange: "8-12",  ageMin: 8,  ageMax: 12, gender: "Male",   simpson: false, appearances: 250, hairColor: "Blonde",  weight: 75 },
-      { name: "NELSON MUNTZ",          ageRange: "10-15", ageMin: 10, ageMax: 15, gender: "Male",   simpson: false, appearances: 200, hairColor: "Brown",   weight: 90 },
-      { name: "RALPH WIGGUM",          ageRange: "8-12",  ageMin: 8,  ageMax: 12, gender: "Male",   simpson: false, appearances: 150, hairColor: "Brown",   weight: 60 },
-      { name: "MARTIN PRINCE",         ageRange: "8-12",  ageMin: 8,  ageMax: 12, gender: "Male",   simpson: false, appearances: 250, hairColor: "Brown",   weight: 70 },
-      { name: "SHERRI",               ageRange: "12-14", ageMin: 12, ageMax: 14, gender: "Female", simpson: false, appearances: 200, hairColor: "Blonde",  weight: 100 },
-      { name: "TERRI",                ageRange: "12-14", ageMin: 12, ageMax: 14, gender: "Female", simpson: false, appearances: 200, hairColor: "Blonde",  weight: 100 },
-      { name: "UTER ZORKER",          ageRange: "10-15", ageMin: 10, ageMax: 15, gender: "Male",   simpson: false, appearances: 120, hairColor: "Black",   weight: 90 },
-      { name: "LUANN VAN HOUTEN",      ageRange: "30-40", ageMin: 30, ageMax: 40, gender: "Female", simpson: false, appearances: 150, hairColor: "Brown",   weight: 115 },
-      { name: "KIRK VAN HOUTEN",       ageRange: "30-40", ageMin: 30, ageMax: 40, gender: "Male",   simpson: false, appearances: 150, hairColor: "Brown",   weight: 140 },
-      { name: "DUFFMAN",              ageRange: "30-40", ageMin: 30, ageMax: 40, gender: "Male",   simpson: false, appearances: 15,  hairColor: "Blonde",  weight: 150 },
-      { name: "OTTO MANN",            ageRange: "20-30", ageMin: 20, ageMax: 30, gender: "Male",   simpson: false, appearances: 220, hairColor: "Black",   weight: 220 },
-      { name: "KEARNEY ZZYZWICZ",      ageRange: "15-20", ageMin: 15, ageMax: 20, gender: "Male",   simpson: false, appearances: 8,   hairColor: "Brown",   weight: 130 },
-      { name: "DOLPH STARBEAM",       ageRange: "15-20", ageMin: 15, ageMax: 20, gender: "Male",   simpson: false, appearances: 8,   hairColor: "Blonde",  weight: 135 },
-      { name: "JIMBO JONES",          ageRange: "15-20", ageMin: 15, ageMax: 20, gender: "Male",   simpson: false, appearances: 10,  hairColor: "Black",   weight: 140 },
-      { name: "RAINIER WOLFCASTLE",    ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 10,  hairColor: "Brown",   weight: 160 },
-      { name: "DR. NICK RIVIERA",     ageRange: "50-60", ageMin: 50, ageMax: 60, gender: "Male",   simpson: false, appearances: 200, hairColor: "Grey",    weight: 170 },
-      { name: "REVEREND LOVEJOY",     ageRange: "50-60", ageMin: 50, ageMax: 60, gender: "Male",   simpson: false, appearances: 140, hairColor: "Grey",    weight: 160 },
-      { name: "JUDGE ROY SNYDER",      ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 40,  hairColor: "Brown",   weight: 160 },
-      { name: "DR. COLOSSUS",         ageRange: "50-60", ageMin: 50, ageMax: 60, gender: "Male",   simpson: false, appearances: 40,  hairColor: "Bald",    weight: 160 },
-      { name: "FAT TONY",             ageRange: "50-60", ageMin: 50, ageMax: 60, gender: "Male",   simpson: false, appearances: 15,  hairColor: "Black",   weight: 230 },
-      { name: "TROY MCCLURE",          ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 10,  hairColor: "Brown",   weight: 160 },
-      { name: "DR. HIBBERT",          ageRange: "50-60", ageMin: 50, ageMax: 60, gender: "Male",   simpson: false, appearances: 200, hairColor: "Grey",    weight: 170 },
-      { name: "REVEREND LOVEJOY",     ageRange: "50-60", ageMin: 50, ageMax: 60, gender: "Male",   simpson: false, appearances: 140, hairColor: "Grey",    weight: 160 },
-      { name: "JUDGE ROY SNYDER",      ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 40,  hairColor: "Brown",   weight: 160 },
-      { name: "DUFFMAN",              ageRange: "30-40", ageMin: 30, ageMax: 40, gender: "Male",   simpson: false, appearances: 15,  hairColor: "Blonde",  weight: 150 },
-      { name: "JULIO",                ageRange: "30-40", ageMin: 30, ageMax: 40, gender: "Male",   simpson: false, appearances: 90,  hairColor: "Black",   weight: 150 },
-      { name: "ARTIE ZIFF",           ageRange: "35-45", ageMin: 35, ageMax: 45, gender: "Male",   simpson: false, appearances: 8,   hairColor: "Brown",   weight: 150 }
+      { name: "HOMER SIMPSON",         ageRange: "36-45", ageMin: 36, ageMax: 45, gender: "Male",   simpson: true,  appearances: 700,  weight: 300 },
+      { name: "MARGE SIMPSON",         ageRange: "36-45", ageMin: 36, ageMax: 45, gender: "Female", simpson: true,  appearances: 700,  weight: 150 },
+      { name: "BART SIMPSON",          ageRange: "8-12",  ageMin: 8,  ageMax: 12, gender: "Male",   simpson: true,  appearances: 700,  weight: 70 },
+      { name: "LISA SIMPSON",          ageRange: "8-12",  ageMin: 8,  ageMax: 12, gender: "Female", simpson: true,  appearances: 700,  weight: 80 },
+      { name: "MAGGIE SIMPSON",        ageRange: "0-4",   ageMin: 0,  ageMax: 4,  gender: "Female", simpson: true,  appearances: 700,  weight: 20 },
+      { name: "ABRAHAM SIMPSON",       ageRange: "80-90", ageMin: 80, ageMax: 90, gender: "Male",   simpson: true,  appearances: 170, weight: 180 },
+      { name: "MONA SIMPSON",          ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Female", simpson: true,  appearances: 30,  weight: 140 },
+      { name: "MR. BURNS",             ageRange: "80-90", ageMin: 80, ageMax: 90, gender: "Male",   simpson: false, appearances: 408, weight: 150 },
+      { name: "WAYLON SMITHERS",       ageRange: "35-45", ageMin: 35, ageMax: 45, gender: "Male",   simpson: false, appearances: 209, weight: 140 },
+      { name: "NED FLANDERS",          ageRange: "35-45", ageMin: 35, ageMax: 45, gender: "Male",   simpson: false, appearances: 303, weight: 150 },
+      { name: "MAUDE FLANDERS",        ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Female", simpson: false, appearances: 50,  weight: 140 },
+      { name: "ROD FLANDERS",          ageRange: "10-15", ageMin: 10, ageMax: 15, gender: "Male",   simpson: false, appearances: 150, weight: 70 },
+      { name: "TODD FLANDERS",         ageRange: "10-15", ageMin: 10, ageMax: 15, gender: "Male",   simpson: false, appearances: 150, weight: 70 },
+      { name: "PATTY BOUVIER",         ageRange: "35-45", ageMin: 35, ageMax: 45, gender: "Female", simpson: false, appearances: 200, weight: 130 },
+      { name: "SELMA BOUVIER",         ageRange: "35-45", ageMin: 35, ageMax: 45, gender: "Female", simpson: false, appearances: 200, weight: 135 },
+      { name: "MOE SZYSLAK",           ageRange: "45-55", ageMin: 45, ageMax: 55, gender: "Male",   simpson: false, appearances: 500, weight: 200 },
+      { name: "BARNEY GUMBLE",         ageRange: "35-45", ageMin: 35, ageMax: 45, gender: "Male",   simpson: false, appearances: 350, weight: 250 },
+      { name: "LENNY LEONARD",         ageRange: "35-45", ageMin: 35, ageMax: 45, gender: "Male",   simpson: false, appearances: 300, weight: 180 },
+      { name: "CARL CARLSON",          ageRange: "35-45", ageMin: 35, ageMax: 45, gender: "Male",   simpson: false, appearances: 300, weight: 180 },
+      { name: "COMIC BOOK GUY",        ageRange: "35-45", ageMin: 35, ageMax: 45, gender: "Male",   simpson: false, appearances: 250, weight: 190 },
+      { name: "SIDESHOW BOB",          ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 60,  weight: 160 },
+      { name: "SIDESHOW MEL",          ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 40,  weight: 165 },
+      { name: "KRUSTY THE CLOWN",      ageRange: "45-55", ageMin: 45, ageMax: 55, gender: "Male",   simpson: false, appearances: 100, weight: 180 },
+      { name: "PRINCIPAL SKINNER",     ageRange: "50-60", ageMin: 50, ageMax: 60, gender: "Male",   simpson: false, appearances: 230, weight: 160 },
+      { name: "EDNA KRABAPPEL",        ageRange: "45-55", ageMin: 45, ageMax: 55, gender: "Female", simpson: false, appearances: 140, weight: 140 },
+      { name: "AGNES SKINNER",         ageRange: "60-70", ageMin: 60, ageMax: 70, gender: "Female", simpson: false, appearances: 60,  weight: 120 },
+      { name: "GROUNDSKEEPER WILLIE",  ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 180, weight: 190 },
+      { name: "DR. HIBBERT",          ageRange: "50-60", ageMin: 50, ageMax: 60, gender: "Male",   simpson: false, appearances: 200, weight: 170 },
+      { name: "CHIEF WIGGUM",          ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 180, weight: 180 },
+      { name: "MILHOUSE VAN HOUTEN",   ageRange: "8-12",  ageMin: 8,  ageMax: 12, gender: "Male",   simpson: false, appearances: 250, weight: 75 },
+      { name: "NELSON MUNTZ",          ageRange: "10-15", ageMin: 10, ageMax: 15, gender: "Male",   simpson: false, appearances: 200, weight: 90 },
+      { name: "RALPH WIGGUM",          ageRange: "8-12",  ageMin: 8,  ageMax: 12, gender: "Male",   simpson: false, appearances: 150, weight: 60 },
+      { name: "MARTIN PRINCE",         ageRange: "8-12",  ageMin: 8,  ageMax: 12, gender: "Male",   simpson: false, appearances: 250, weight: 70 },
+      { name: "SHERRI",               ageRange: "12-14", ageMin: 12, ageMax: 14, gender: "Female", simpson: false, appearances: 200, weight: 100 },
+      { name: "TERRI",                ageRange: "12-14", ageMin: 12, ageMax: 14, gender: "Female", simpson: false, appearances: 200, weight: 100 },
+      { name: "UTER ZORKER",          ageRange: "10-15", ageMin: 10, ageMax: 15, gender: "Male",   simpson: false, appearances: 120, weight: 90 },
+      { name: "LUANN VAN HOUTEN",      ageRange: "30-40", ageMin: 30, ageMax: 40, gender: "Female", simpson: false, appearances: 150, weight: 115 },
+      { name: "KIRK VAN HOUTEN",       ageRange: "30-40", ageMin: 30, ageMax: 40, gender: "Male",   simpson: false, appearances: 150, weight: 140 },
+      { name: "DUFFMAN",              ageRange: "30-40", ageMin: 30, ageMax: 40, gender: "Male",   simpson: false, appearances: 15,  weight: 150 },
+      { name: "OTTO MANN",            ageRange: "20-30", ageMin: 20, ageMax: 30, gender: "Male",   simpson: false, appearances: 220, weight: 220 },
+      { name: "KEARNEY ZZYZWICZ",      ageRange: "15-20", ageMin: 15, ageMax: 20, gender: "Male",   simpson: false, appearances: 8,   weight: 130 },
+      { name: "DOLPH STARBEAM",       ageRange: "15-20", ageMin: 15, ageMax: 20, gender: "Male",   simpson: false, appearances: 8,   weight: 135 },
+      { name: "JIMBO JONES",          ageRange: "15-20", ageMin: 15, ageMax: 20, gender: "Male",   simpson: false, appearances: 10,  weight: 140 },
+      { name: "RAINIER WOLFCASTLE",    ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 10,  weight: 160 },
+      { name: "DR. NICK RIVIERA",     ageRange: "50-60", ageMin: 50, ageMax: 60, gender: "Male",   simpson: false, appearances: 200, weight: 170 },
+      { name: "REVEREND LOVEJOY",     ageRange: "50-60", ageMin: 50, ageMax: 60, gender: "Male",   simpson: false, appearances: 140, weight: 160 },
+      { name: "JUDGE ROY SNYDER",      ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 40,  weight: 160 },
+      { name: "DR. COLOSSUS",         ageRange: "50-60", ageMin: 50, ageMax: 60, gender: "Male",   simpson: false, appearances: 40,  weight: 160 },
+      { name: "FAT TONY",             ageRange: "50-60", ageMin: 50, ageMax: 60, gender: "Male",   simpson: false, appearances: 15,  weight: 230 },
+      { name: "TROY MCCLURE",          ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 10,  weight: 160 },
+      { name: "DR. HIBBERT",          ageRange: "50-60", ageMin: 50, ageMax: 60, gender: "Male",   simpson: false, appearances: 200, weight: 170 },
+      { name: "REVEREND LOVEJOY",     ageRange: "50-60", ageMin: 50, ageMax: 60, gender: "Male",   simpson: false, appearances: 140, weight: 160 }
     ];
     
     /*****************************
      * Daily Puzzle Functionality *
      *****************************/
-    // Get today's date (YYYY-MM-DD)
+    // Get today's date string (YYYY-MM-DD)
     const todayKey = new Date().toISOString().slice(0,10);
     
-    // Deterministic daily secret based on a hash of today's date.
+    // Deterministically choose a secret character based on today's date.
     function hashString(str) {
       let hash = 0;
       for (let i = 0; i < str.length; i++) {
@@ -509,12 +480,6 @@
       }
       row.appendChild(appCell);
       
-      // Hair Color cell
-      const hairCell = document.createElement("td");
-      hairCell.textContent = guessedCharacter.hairColor;
-      hairCell.classList.add(guessedCharacter.hairColor === dailySecret.hairColor ? "correct" : "incorrect");
-      row.appendChild(hairCell);
-      
       // Weight cell
       const weightCell = document.createElement("td");
       weightCell.textContent = guessedCharacter.weight;
@@ -563,26 +528,25 @@
     /*****************************
      * Home / Splash Screen Logic *
      *****************************/
-    // If today's round has been played, show splash screen; else show home menu.
+    // If today's round was already played, show the splash screen; else show the home menu.
     if (localStorage.getItem("simpsonsDailyRound_" + todayKey)) {
       splashScreen.style.display = "flex";
     } else {
       homeMenu.style.display = "flex";
     }
     
-    // When "Play" is clicked from home menu, show game.
+    // When "Play" is clicked from the home menu, show the game.
     document.getElementById("playButton").addEventListener("click", function() {
       homeMenu.style.display = "none";
       gameContainer.style.display = "block";
       guessInput.focus();
     });
     
-    // When "View History" is clicked from splash screen, show history.
+    // When "View History" is clicked from the splash screen, show history.
     document.getElementById("viewHistoryButton").addEventListener("click", function() {
       splashScreen.style.display = "none";
       historyContainer.style.display = "block";
     });
-    
   </script>
 </body>
 </html>
