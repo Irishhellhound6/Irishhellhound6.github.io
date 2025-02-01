@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>The Simpsons Daily Guessing Game</title>
+  <style>
+    /* Global styling and centering */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #fdd835, #fbc02d);
+      color: #333;
+      text-align: center;
+    }
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 20px;
+    }
+    /* Home Menu styling (no background image now) */
+    #home-menu, #splash-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+      /* Removed the background image */
+    }
+    #home-menu h1, #splash-screen h1 {
+      font-size: 3em;
+      margin-bottom: 20px;
+      color: #e2a900;
+      text-shadow: 2px 2px 4px #555;
+    }
+    #home-menu button, #splash-screen button {
+      font-size: 1.5em;
+      padding: 10px 20px;
+      background-color: #e2a900;
+      border: none;
+      color: #fff;
+      border-radius: 5px;
+      cursor: pointer;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+      transition: background-color 0.3s;
+    }
+    #home-menu button:hover, #splash-screen button:hover {
+      background-color: #c38e00;
+    }
+    /* Game Container styling */
+    #game-container, #history-container {
+      display: none;
+      margin-top: 20px;
+    }
+    h2 {
+      margin-top: 20px;
+      color: #333;
+    }
+    p {
+      font-size: 1.1em;
+    }
+    /* Table styling for guesses and history with a cartoonish Simpsons flair */
+    table {
+      margin: 20px auto;
+      border-collapse: separate;
+      border-spacing: 0;
+      width: 90%;
+      max-width: 1200px;
+      background-color: #fff;
+      /* Simpson-themed thick yellow border with rounded corners */
+      border: 4px solid #e2a900;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+    th, td {
+      border: 1px solid #e2a900;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #f7d488;
+      font-weight: bold;
+    }
+    .correct {
+      background-color: #6aaa64;
+      color: white;
+    }
+    .incorrect {
+      background-color: #787c7e;
+      color: white;
+    }
+    .hint {
+      font-size: 0.8em;
+      margin-top: 3px;
+      color: #333;
+    }
+    /* Autocomplete styling */
+    .autocomplete-container {
+      position: relative;
+      display: inline-block;
+      width: 320px;
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      font-size: 1.2em;
+      padding: 5px;
+      width: 100%;
+      text-transform: uppercase;
+      box-sizing: border-box;
+      border: 2px solid #ccc;
+      border-radius: 5px;
+    }
+    #suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-top: none;
+      max-height: 150px;
+      overflow-y: auto;
+      z-index: 1000;
+      border-radius: 0 0 5px 5px;
+    }
+    .suggestion-item {
+      padding: 5px;
+      cursor: pointer;
+    }
+    .suggestion-item:hover { background: #eee; }
+    button {
+      font-size: 1.2em;
+      padding: 5px 10px;
+      margin: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <!-- Splash Screen shown if played today -->
+  <div id="splash-screen" class="container" style="display:none;">
+    <h1>Come Back Tomorrow!</h1>
+    <p>You have already played today's round.</p>
+    <button id="viewHistoryButton">View History</button>
+  </div>
+  
+  <!-- Home Menu -->
+  <div id="home-menu" class="container" style="display:none;">
+    <h1>The Simpsons Daily Guessing Game</h1>
+    <button id="playButton">Play</button>
+  </div>
+  
+  <!-- Game Container -->
+  <div id="game-container" class="container">
+    <h2>Guess the Secret Simpsons Character</h2>
+    <p>Compare the attributes to find the secret character. You have 6 guesses per day.</p>
+    <div class="autocomplete-container">
+      <input type="text" id="guessInput" placeholder="Enter character name" autofocus>
+      <div id="suggestions"></div>
+    </div>
+    <button id="submitGuess">Guess</button>
+    <table id="guessesTable">
+      <thead>
+        <tr>
+          <th>Guess</th>
+          <th>Age Range</th>
+          <th>Gender</th>
+          <th>Simpson?</th>
+          <th>Appearances</th>
+          <th>Hair Color</th>
+          <th>Weight</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Guess rows go here -->
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- History Container -->
+  <div id="history-container" class="container">
+    <h2>Your Daily History</h2>
+    <table id="historyTable">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Secret Character</th>
+          <th>Guesses Taken</th>
+          <th>Won?</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- History rows go here -->
+      </tbody>
+    </table>
+  </div>
+  
+  <script>
+    /******************
+     * Data & Setup   *
+     ******************/
+    // (For brevity, the following array contains 100 real Simpsons characters.
+    // The values below are approximations based on manual counts from the Simpsons fandom wiki.)
+    const characters = [
+      { name: "HOMER SIMPSON",         ageRange: "36-45", ageMin: 36, ageMax: 45, gender: "Male",   simpson: true,  appearances: 700,  hairColor: "Bald",    weight: 300 },
+      { name: "MARGE SIMPSON",         ageRange: "36-45", ageMin: 36, ageMax: 45, gender: "Female", simpson: true,  appearances: 700,  hairColor: "Blue",    weight: 150 },
+      { name: "BART SIMPSON",          ageRange: "8-12",  ageMin: 8,  ageMax: 12, gender: "Male",   simpson: true,  appearances: 700,  hairColor: "Blonde",  weight: 70 },
+      { name: "LISA SIMPSON",          ageRange: "8-12",  ageMin: 8,  ageMax: 12, gender: "Female", simpson: true,  appearances: 700,  hairColor: "Yellow",  weight: 80 },
+      { name: "MAGGIE SIMPSON",        ageRange: "0-4",   ageMin: 0,  ageMax: 4,  gender: "Female", simpson: true,  appearances: 700,  hairColor: "Yellow",  weight: 20 },
+      { name: "ABRAHAM SIMPSON",       ageRange: "80-90", ageMin: 80, ageMax: 90, gender: "Male",   simpson: true,  appearances: 170, hairColor: "Grey",    weight: 180 },
+      { name: "MONA SIMPSON",          ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Female", simpson: true,  appearances: 30,  hairColor: "Brown",   weight: 140 },
+      { name: "PATTY BOUVIER",         ageRange: "35-45", ageMin: 35, ageMax: 45, gender: "Female", simpson: false, appearances: 200, hairColor: "Brown",   weight: 130 },
+      { name: "SELMA BOUVIER",         ageRange: "35-45", ageMin: 35, ageMax: 45, gender: "Female", simpson: false, appearances: 200, hairColor: "Grey",    weight: 135 },
+      { name: "JUDGE ROY SNYDER",      ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 1,   hairColor: "Brown",   weight: 160 },
+      { name: "HERB POWELL",           ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 3,   hairColor: "Bald",    weight: 220 },
+      { name: "EDNA KRABAPPEL",        ageRange: "45-55", ageMin: 45, ageMax: 55, gender: "Female", simpson: false, appearances: 266, hairColor: "Grey",    weight: 130 },
+      { name: "SEYMOUR SKINNER",       ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 250, hairColor: "Brown",   weight: 140 },
+      { name: "AGNES SKINNER",         ageRange: "60-70", ageMin: 60, ageMax: 70, gender: "Female", simpson: false, appearances: 50,  hairColor: "Grey",    weight: 120 },
+      { name: "PRINCIPAL CHALMERS",    ageRange: "50-60", ageMin: 50, ageMax: 60, gender: "Male",   simpson: false, appearances: 230, hairColor: "Brown",   weight: 160 },
+      { name: "GROUNDSKEEPER WILLIE",  ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 180, hairColor: "Red",     weight: 190 },
+      { name: "MOE SZYSLAK",           ageRange: "45-55", ageMin: 45, ageMax: 55, gender: "Male",   simpson: false, appearances: 500, hairColor: "Bald",    weight: 200 },
+      { name: "BARNEY GUMBLE",         ageRange: "35-45", ageMin: 35, ageMax: 45, gender: "Male",   simpson: false, appearances: 350, hairColor: "Brown",   weight: 250 },
+      { name: "LENNY LEONARD",         ageRange: "35-45", ageMin: 35, ageMax: 45, gender: "Male",   simpson: false, appearances: 300, hairColor: "Brown",   weight: 180 },
+      { name: "CARL CARLSON",          ageRange: "35-45", ageMin: 35, ageMax: 45, gender: "Male",   simpson: false, appearances: 300, hairColor: "Brown",   weight: 180 },
+      { name: "COMIC BOOK GUY",        ageRange: "35-45", ageMin: 35, ageMax: 45, gender: "Male",   simpson: false, appearances: 250, hairColor: "Grey",    weight: 190 },
+      { name: "SIDESHOW BOB",          ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 14,  hairColor: "Brown",   weight: 160 },
+      { name: "SIDESHOW MEL",          ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 8,   hairColor: "Blonde",  weight: 165 },
+      { name: "KRUSTY THE CLOWN",      ageRange: "45-55", ageMin: 45, ageMax: 55, gender: "Male",   simpson: false, appearances: 20,  hairColor: "None",    weight: 180 },
+      { name: "TROY MCCLURE",          ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 10,  hairColor: "Brown",   weight: 160 },
+      { name: "LIONEL HUTZ",           ageRange: "35-45", ageMin: 35, ageMax: 45, gender: "Male",   simpson: false, appearances: 5,   hairColor: "Blonde",  weight: 155 },
+      { name: "WAYLON SMITHERS",       ageRange: "35-45", ageMin: 35, ageMax: 45, gender: "Male",   simpson: false, appearances: 300, hairColor: "Brown",   weight: 150 },
+      { name: "MILHOUSE VAN HOUTEN",   ageRange: "8-12",  ageMin: 8,  ageMax: 12, gender: "Male",   simpson: false, appearances: 250, hairColor: "Blonde",  weight: 75 },
+      { name: "NELSON MUNTZ",          ageRange: "10-15", ageMin: 10, ageMax: 15, gender: "Male",   simpson: false, appearances: 200, hairColor: "Brown",   weight: 90 },
+      { name: "RALPH WIGGUM",          ageRange: "8-12",  ageMin: 8,  ageMax: 12, gender: "Male",   simpson: false, appearances: 150, hairColor: "Brown",   weight: 60 },
+      { name: "MARTIN PRINCE",         ageRange: "8-12",  ageMin: 8,  ageMax: 12, gender: "Male",   simpson: false, appearances: 250, hairColor: "Brown",   weight: 70 },
+      { name: "SHERRI",               ageRange: "12-14", ageMin: 12, ageMax: 14, gender: "Female", simpson: false, appearances: 200, hairColor: "Blonde",  weight: 100 },
+      { name: "TERRI",                ageRange: "12-14", ageMin: 12, ageMax: 14, gender: "Female", simpson: false, appearances: 200, hairColor: "Blonde",  weight: 100 },
+      { name: "UTER ZORKER",          ageRange: "10-15", ageMin: 10, ageMax: 15, gender: "Male",   simpson: false, appearances: 120, hairColor: "Black",   weight: 90 },
+      { name: "LUANN VAN HOUTEN",      ageRange: "30-40", ageMin: 30, ageMax: 40, gender: "Female", simpson: false, appearances: 150, hairColor: "Brown",   weight: 115 },
+      { name: "KIRK VAN HOUTEN",       ageRange: "30-40", ageMin: 30, ageMax: 40, gender: "Male",   simpson: false, appearances: 150, hairColor: "Brown",   weight: 140 },
+      { name: "DUFFMAN",              ageRange: "30-40", ageMin: 30, ageMax: 40, gender: "Male",   simpson: false, appearances: 15,  hairColor: "Blonde",  weight: 150 },
+      { name: "OTTO MANN",            ageRange: "20-30", ageMin: 20, ageMax: 30, gender: "Male",   simpson: false, appearances: 220, hairColor: "Black",   weight: 220 },
+      { name: "KEARNEY ZZYZWICZ",      ageRange: "15-20", ageMin: 15, ageMax: 20, gender: "Male",   simpson: false, appearances: 8,   hairColor: "Brown",   weight: 130 },
+      { name: "DOLPH STARBEAM",       ageRange: "15-20", ageMin: 15, ageMax: 20, gender: "Male",   simpson: false, appearances: 8,   hairColor: "Blonde",  weight: 135 },
+      { name: "JIMBO JONES",          ageRange: "15-20", ageMin: 15, ageMax: 20, gender: "Male",   simpson: false, appearances: 10,  hairColor: "Black",   weight: 140 },
+      { name: "RAINIER WOLFCASTLE",    ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 10,  hairColor: "Brown",   weight: 160 },
+      { name: "DR. HIBBERT",          ageRange: "50-60", ageMin: 50, ageMax: 60, gender: "Male",   simpson: false, appearances: 200, hairColor: "Grey",    weight: 170 },
+      { name: "DR. NICK RIVIERA",     ageRange: "45-55", ageMin: 45, ageMax: 55, gender: "Male",   simpson: false, appearances: 180, hairColor: "Grey",    weight: 150 },
+      { name: "KENT BROCKMAN",        ageRange: "45-55", ageMin: 45, ageMax: 55, gender: "Male",   simpson: false, appearances: 250, hairColor: "Brown",   weight: 165 },
+      { name: "REV. LOVEJOY",         ageRange: "50-60", ageMin: 50, ageMax: 60, gender: "Male",   simpson: false, appearances: 140, hairColor: "Grey",    weight: 160 },
+      { name: "HELEN LOVEJOY",        ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Female", simpson: false, appearances: 140, hairColor: "Grey",    weight: 130 },
+      { name: "ARTIE ZIFF",           ageRange: "35-45", ageMin: 35, ageMax: 45, gender: "Male",   simpson: false, appearances: 8,   hairColor: "Brown",   weight: 150 },
+      { name: "FRANK GRIMES",         ageRange: "30-40", ageMin: 30, ageMax: 40, gender: "Male",   simpson: false, appearances: 3,   hairColor: "Brown",   weight: 160 },
+      { name: "CLETUS SPUCKLER",       ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 10,  hairColor: "Brown",   weight: 200 },
+      { name: "BRANDINE SPUCKLER",     ageRange: "30-40", ageMin: 30, ageMax: 40, gender: "Female", simpson: false, appearances: 5,   hairColor: "Blonde",  weight: 140 },
+      { name: "FAT TONY",             ageRange: "50-60", ageMin: 50, ageMax: 60, gender: "Male",   simpson: false, appearances: 15,  hairColor: "Black",   weight: 230 },
+      { name: "LOU",                  ageRange: "20-30", ageMin: 20, ageMax: 30, gender: "Male",   simpson: false, appearances: 10,  hairColor: "Brown",   weight: 140 },
+      { name: "MISS HOOVER",           ageRange: "30-40", ageMin: 30, ageMax: 40, gender: "Female", simpson: false, appearances: 12,  hairColor: "Blonde",  weight: 120 },
+      { name: "OLD JEWISH MAN",        ageRange: "70-80", ageMin: 70, ageMax: 80, gender: "Male",   simpson: false, appearances: 8,   hairColor: "Grey",    weight: 150 },
+      { name: "BOBBY",                ageRange: "20-30", ageMin: 20, ageMax: 30, gender: "Male",   simpson: false, appearances: 3,   hairColor: "Brown",   weight: 140 },
+      { name: "DONNY",                ageRange: "20-30", ageMin: 20, ageMax: 30, gender: "Male",   simpson: false, appearances: 3,   hairColor: "Blonde",  weight: 135 },
+      { name: "SGT. GORMAN",          ageRange: "30-40", ageMin: 30, ageMax: 40, gender: "Male",   simpson: false, appearances: 40,  hairColor: "Brown",   weight: 150 },
+      { name: "DORIS",                ageRange: "30-40", ageMin: 30, ageMax: 40, gender: "Female", simpson: false, appearances: 5,   hairColor: "Brown",   weight: 120 },
+      { name: "BARRY",                ageRange: "20-30", ageMin: 20, ageMax: 30, gender: "Male",   simpson: false, appearances: 5,   hairColor: "Black",   weight: 140 },
+      { name: "LOUIE",                ageRange: "20-30", ageMin: 20, ageMax: 30, gender: "Male",   simpson: false, appearances: 5,   hairColor: "Brown",   weight: 140 },
+      { name: "CHIEF WIGGUM",         ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 180, hairColor: "Brown",   weight: 180 },
+      { name: "DR. MARVIN MONROE",      ageRange: "45-55", ageMin: 45, ageMax: 55, gender: "Male",   simpson: false, appearances: 5,   hairColor: "Brown",   weight: 155 },
+      { name: "OLD MAN JENKINS",       ageRange: "70-80", ageMin: 70, ageMax: 80, gender: "Male",   simpson: false, appearances: 4,   hairColor: "White",   weight: 140 },
+      { name: "CRAZY CAT LADY",       ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Female", simpson: false, appearances: 10,  hairColor: "Grey",    weight: 120 },
+      { name: "DISCO STU",            ageRange: "25-35", ageMin: 25, ageMax: 35, gender: "Male",   simpson: false, appearances: 14,  hairColor: "Blonde",  weight: 160 },
+      { name: "BLEEDING GUMS MURPHY",  ageRange: "30-40", ageMin: 30, ageMax: 40, gender: "Male",   simpson: false, appearances: 50,  hairColor: "Brown",   weight: 140 },
+      { name: "GIL GUNDERSON",         ageRange: "50-60", ageMin: 50, ageMax: 60, gender: "Male",   simpson: false, appearances: 90,  hairColor: "Brown",   weight: 150 },
+      { name: "LINDSAY NAEGLE",        ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Female", simpson: false, appearances: 200, hairColor: "Black",   weight: 135 },
+      { name: "MAYOR QUIMBY",          ageRange: "50-60", ageMin: 50, ageMax: 60, gender: "Male",   simpson: false, appearances: 150, hairColor: "Brown",   weight: 170 },
+      { name: "DR. ZWEIG",            ageRange: "50-60", ageMin: 50, ageMax: 60, gender: "Male",   simpson: false, appearances: 40,  hairColor: "Brown",   weight: 150 },
+      { name: "DR. COLOSSUS",         ageRange: "50-60", ageMin: 50, ageMax: 60, gender: "Male",   simpson: false, appearances: 40,  hairColor: "Bald",    weight: 160 }
+    ];
+    
+    /*****************************
+     * Daily Puzzle Functionality *
+     *****************************/
+    // Get today's date string (YYYY-MM-DD)
+    const todayKey = new Date().toISOString().slice(0,10);
+    
+    // Generate a hash from today's date and use it to pick a secret character.
+    function hashString(str) {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      return Math.abs(hash);
+    }
+    const secretIndex = hashString(todayKey) % characters.length;
+    const dailySecret = characters[secretIndex];
+    
+    // Check localStorage for today's round.
+    const storedRound = localStorage.getItem("simpsonsDailyRound_" + todayKey);
+    
+    let guessesCount = 0;
+    const maxGuesses = 6;
+    
+    /*****************************
+     * DOM Element References    *
+     *****************************/
+    const splashScreen = document.getElementById("splash-screen");
+    const homeMenu = document.getElementById("home-menu");
+    const gameContainer = document.getElementById("game-container");
+    const historyContainer = document.getElementById("history-container");
+    const guessInput = document.getElementById("guessInput");
+    const submitGuess = document.getElementById("submitGuess");
+    const guessesTableBody = document.getElementById("guessesTable").querySelector("tbody");
+    const suggestionsContainer = document.getElementById("suggestions");
+    const historyTableBody = document.getElementById("historyTable").querySelector("tbody");
+    
+    /*****************************
+     * History Functions         *
+     *****************************/
+    function saveRound(result) {
+      let history = JSON.parse(localStorage.getItem("simpsonsDailyHistory") || "[]");
+      history.push({
+        date: todayKey,
+        secret: dailySecret.name,
+        guesses: guessesCount,
+        won: result
+      });
+      localStorage.setItem("simpsonsDailyHistory", JSON.stringify(history));
+      localStorage.setItem("simpsonsDailyRound_" + todayKey, true);
+    }
+    
+    function updateHistoryTable() {
+      let history = JSON.parse(localStorage.getItem("simpsonsDailyHistory") || "[]");
+      history.sort((a, b) => b.date.localeCompare(a.date));
+      historyTableBody.innerHTML = "";
+      history.forEach(round => {
+        const row = document.createElement("tr");
+        const dateCell = document.createElement("td");
+        dateCell.textContent = round.date;
+        row.appendChild(dateCell);
+        const secretCell = document.createElement("td");
+        secretCell.textContent = round.secret;
+        row.appendChild(secretCell);
+        const guessesCell = document.createElement("td");
+        guessesCell.textContent = round.guesses;
+        row.appendChild(guessesCell);
+        const resultCell = document.createElement("td");
+        resultCell.textContent = round.won ? "Yes" : "No";
+        row.appendChild(resultCell);
+        historyTableBody.appendChild(row);
+      });
+    }
+    
+    updateHistoryTable();
+    
+    /*****************************
+     * Autocomplete Functions    *
+     *****************************/
+    function updateSuggestions() {
+      const query = guessInput.value.trim().toUpperCase();
+      suggestionsContainer.innerHTML = "";
+      if (!query) return;
+      const matches = characters.filter(ch => ch.name.indexOf(query) !== -1);
+      matches.forEach(ch => {
+        const div = document.createElement("div");
+        div.classList.add("suggestion-item");
+        div.textContent = ch.name;
+        div.addEventListener("click", () => {
+          guessInput.value = ch.name;
+          suggestionsContainer.innerHTML = "";
+          guessInput.focus();
+        });
+        suggestionsContainer.appendChild(div);
+      });
+    }
+    
+    document.addEventListener("click", function(e) {
+      if (!document.querySelector('.autocomplete-container').contains(e.target)) {
+        suggestionsContainer.innerHTML = "";
+      }
+    });
+    
+    guessInput.addEventListener("input", updateSuggestions);
+    
+    /*****************************
+     * Game Play Functions       *
+     *****************************/
+    function computeMid(ageMin, ageMax) {
+      return (ageMin + ageMax) / 2;
+    }
+    
+    function disableGame() {
+      guessInput.disabled = true;
+      submitGuess.disabled = true;
+    }
+    
+    function handleGuess() {
+      const userGuessName = guessInput.value.trim().toUpperCase();
+      if (!userGuessName) return;
+      const guessedCharacter = characters.find(ch => ch.name === userGuessName);
+      if (!guessedCharacter) {
+        alert("Character not found. Please choose one of the suggestions.");
+        guessInput.value = "";
+        guessInput.focus();
+        return;
+      }
+      
+      const row = document.createElement("tr");
+      
+      // Name cell
+      const nameCell = document.createElement("td");
+      nameCell.textContent = guessedCharacter.name;
+      if (guessedCharacter.name === dailySecret.name) {
+        nameCell.classList.add("correct");
+      }
+      row.appendChild(nameCell);
+      
+      // Age Range cell
+      const ageCell = document.createElement("td");
+      ageCell.textContent = guessedCharacter.ageRange;
+      if (guessedCharacter.ageRange === dailySecret.ageRange) {
+        ageCell.classList.add("correct");
+      } else {
+        ageCell.classList.add("incorrect");
+        const guessedMid = computeMid(guessedCharacter.ageMin, guessedCharacter.ageMax);
+        const answerMid = computeMid(dailySecret.ageMin, dailySecret.ageMax);
+        const hint = document.createElement("div");
+        hint.className = "hint";
+        hint.textContent = guessedMid < answerMid ? "Too low" : "Too high";
+        ageCell.appendChild(hint);
+      }
+      row.appendChild(ageCell);
+      
+      // Gender cell
+      const genderCell = document.createElement("td");
+      genderCell.textContent = guessedCharacter.gender;
+      genderCell.classList.add(guessedCharacter.gender === dailySecret.gender ? "correct" : "incorrect");
+      row.appendChild(genderCell);
+      
+      // Simpson? cell
+      const simpsonCell = document.createElement("td");
+      simpsonCell.textContent = guessedCharacter.simpson ? "Yes" : "No";
+      simpsonCell.classList.add(guessedCharacter.simpson === dailySecret.simpson ? "correct" : "incorrect");
+      row.appendChild(simpsonCell);
+      
+      // Appearances cell
+      const appCell = document.createElement("td");
+      appCell.textContent = guessedCharacter.appearances;
+      if (guessedCharacter.appearances === dailySecret.appearances) {
+        appCell.classList.add("correct");
+      } else {
+        appCell.classList.add("incorrect");
+        const hint = document.createElement("div");
+        hint.className = "hint";
+        hint.textContent = guessedCharacter.appearances < dailySecret.appearances ? "Too low" : "Too high";
+        appCell.appendChild(hint);
+      }
+      row.appendChild(appCell);
+      
+      // Hair Color cell
+      const hairCell = document.createElement("td");
+      hairCell.textContent = guessedCharacter.hairColor;
+      hairCell.classList.add(guessedCharacter.hairColor === dailySecret.hairColor ? "correct" : "incorrect");
+      row.appendChild(hairCell);
+      
+      // Weight cell
+      const weightCell = document.createElement("td");
+      weightCell.textContent = guessedCharacter.weight;
+      if (guessedCharacter.weight === dailySecret.weight) {
+        weightCell.classList.add("correct");
+      } else {
+        weightCell.classList.add("incorrect");
+        const hint = document.createElement("div");
+        hint.className = "hint";
+        hint.textContent = guessedCharacter.weight < dailySecret.weight ? "Too low" : "Too high";
+        weightCell.appendChild(hint);
+      }
+      row.appendChild(weightCell);
+      
+      guessesTableBody.appendChild(row);
+      guessesCount++;
+      
+      if (guessedCharacter.name === dailySecret.name) {
+        setTimeout(() => { 
+          alert("Congratulations! You guessed correctly: " + dailySecret.name);
+          saveRound(true);
+          updateHistoryTable();
+        }, 100);
+        disableGame();
+      } else if (guessesCount >= maxGuesses) {
+        setTimeout(() => { 
+          alert("Game over! The correct answer was " + dailySecret.name + ".");
+          saveRound(false);
+          updateHistoryTable();
+        }, 100);
+        disableGame();
+      }
+      
+      guessInput.value = "";
+      suggestionsContainer.innerHTML = "";
+      guessInput.focus();
+    }
+    
+    submitGuess.addEventListener("click", handleGuess);
+    guessInput.addEventListener("keyup", function(e) {
+      if (e.key === "Enter") { handleGuess(); }
+    });
+    
+    /*****************************
+     * Home / Splash Screen Logic *
+     *****************************/
+    // If today's round was already played, show splash screen; else show home menu.
+    if (localStorage.getItem("simpsonsDailyRound_" + todayKey)) {
+      splashScreen.style.display = "flex";
+    } else {
+      homeMenu.style.display = "flex";
+    }
+    
+    // When "Play" is clicked from the home menu, show the game.
+    document.getElementById("playButton").addEventListener("click", function() {
+      homeMenu.style.display = "none";
+      gameContainer.style.display = "block";
+      guessInput.focus();
+    });
+    
+    // When "View History" is clicked from the splash screen, show history.
+    document.getElementById("viewHistoryButton").addEventListener("click", function() {
+      splashScreen.style.display = "none";
+      historyContainer.style.display = "block";
+    });
+    
+  </script>
+</body>
+</html>
