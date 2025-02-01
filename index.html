@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <!-- Responsive meta tag -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>The Simpsons Daily Guessing Game</title>
   <style>
     /* Global styling and centering */
@@ -18,15 +20,14 @@
       margin: auto;
       padding: 20px;
     }
-    /* Home Menu styling (no background image now) */
+    /* Home Menu & Splash Screen styling */
     #home-menu, #splash-screen {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      min-height: 100vh;
       text-align: center;
-      /* Removed the background image */
     }
     #home-menu h1, #splash-screen h1 {
       font-size: 3em;
@@ -48,7 +49,7 @@
     #home-menu button:hover, #splash-screen button:hover {
       background-color: #c38e00;
     }
-    /* Game Container styling */
+    /* Game and History Container styling */
     #game-container, #history-container {
       display: none;
       margin-top: 20px;
@@ -60,7 +61,7 @@
     p {
       font-size: 1.1em;
     }
-    /* Table styling for guesses and history with a cartoonish Simpsons flair */
+    /* Table styling with Simpsons-themed flair */
     table {
       margin: 20px auto;
       border-collapse: separate;
@@ -68,7 +69,6 @@
       width: 90%;
       max-width: 1200px;
       background-color: #fff;
-      /* Simpson-themed thick yellow border with rounded corners */
       border: 4px solid #e2a900;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.3);
@@ -82,14 +82,8 @@
       background-color: #f7d488;
       font-weight: bold;
     }
-    .correct {
-      background-color: #6aaa64;
-      color: white;
-    }
-    .incorrect {
-      background-color: #787c7e;
-      color: white;
-    }
+    .correct { background-color: #6aaa64; color: white; }
+    .incorrect { background-color: #787c7e; color: white; }
     .hint {
       font-size: 0.8em;
       margin-top: 3px;
@@ -137,10 +131,17 @@
       border-radius: 5px;
       cursor: pointer;
     }
+    /* Responsive adjustments for phones */
+    @media (max-width: 600px) {
+      h1 { font-size: 2.5em; }
+      h2 { font-size: 1.8em; }
+      p, th, td, input[type="text"] { font-size: 1em; }
+      .autocomplete-container, table { width: 95%; }
+    }
   </style>
 </head>
 <body>
-  <!-- Splash Screen shown if played today -->
+  <!-- Splash Screen for when today's round is complete -->
   <div id="splash-screen" class="container" style="display:none;">
     <h1>Come Back Tomorrow!</h1>
     <p>You have already played today's round.</p>
@@ -175,7 +176,7 @@
         </tr>
       </thead>
       <tbody>
-        <!-- Guess rows go here -->
+        <!-- Guess rows will be appended here -->
       </tbody>
     </table>
   </div>
@@ -193,7 +194,7 @@
         </tr>
       </thead>
       <tbody>
-        <!-- History rows go here -->
+        <!-- History rows will be appended here -->
       </tbody>
     </table>
   </div>
@@ -202,8 +203,8 @@
     /******************
      * Data & Setup   *
      ******************/
-    // (For brevity, the following array contains 100 real Simpsons characters.
-    // The values below are approximations based on manual counts from the Simpsons fandom wiki.)
+    // For brevity, the characters array below contains 100 real Simpsons characters.
+    // Appearance counts and other attributes are approximations (each episode appearance counts as one).
     const characters = [
       { name: "HOMER SIMPSON",         ageRange: "36-45", ageMin: 36, ageMax: 45, gender: "Male",   simpson: true,  appearances: 700,  hairColor: "Bald",    weight: 300 },
       { name: "MARGE SIMPSON",         ageRange: "36-45", ageMin: 36, ageMax: 45, gender: "Female", simpson: true,  appearances: 700,  hairColor: "Blue",    weight: 150 },
@@ -395,6 +396,14 @@
       submitGuess.disabled = true;
     }
     
+    // After the round finishes, wait 5 seconds and then move the user to the splash screen.
+    function moveToSplashAfterDelay() {
+      setTimeout(() => {
+        gameContainer.style.display = "none";
+        splashScreen.style.display = "flex";
+      }, 5000);
+    }
+    
     function handleGuess() {
       const userGuessName = guessInput.value.trim().toUpperCase();
       if (!userGuessName) return;
@@ -486,15 +495,17 @@
           alert("Congratulations! You guessed correctly: " + dailySecret.name);
           saveRound(true);
           updateHistoryTable();
+          disableGame();
+          moveToSplashAfterDelay();
         }, 100);
-        disableGame();
       } else if (guessesCount >= maxGuesses) {
         setTimeout(() => { 
           alert("Game over! The correct answer was " + dailySecret.name + ".");
           saveRound(false);
           updateHistoryTable();
+          disableGame();
+          moveToSplashAfterDelay();
         }, 100);
-        disableGame();
       }
       
       guessInput.value = "";
@@ -510,7 +521,7 @@
     /*****************************
      * Home / Splash Screen Logic *
      *****************************/
-    // If today's round was already played, show splash screen; else show home menu.
+    // If today's round was already played, show the splash screen; otherwise, show the home menu.
     if (localStorage.getItem("simpsonsDailyRound_" + todayKey)) {
       splashScreen.style.display = "flex";
     } else {
@@ -524,7 +535,7 @@
       guessInput.focus();
     });
     
-    // When "View History" is clicked from the splash screen, show history.
+    // When "View History" is clicked from the splash screen, show the history.
     document.getElementById("viewHistoryButton").addEventListener("click", function() {
       splashScreen.style.display = "none";
       historyContainer.style.display = "block";
@@ -533,3 +544,4 @@
   </script>
 </body>
 </html>
+
