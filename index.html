@@ -74,7 +74,7 @@
     p {
       font-size: 1.1em;
     }
-    /* Table container to avoid horizontal scroll */
+    /* Responsive table container */
     .table-container {
       width: 100%;
       overflow-x: auto;
@@ -95,8 +95,9 @@
       border: 1px solid #e2a900;
       padding: 8px 4px;
       text-align: center;
+      /* Allow text to break gracefully */
+      white-space: normal;
       word-wrap: break-word;
-      white-space: nowrap;  /* Prevent text wrapping */
       font-size: 0.95em;
     }
     th {
@@ -206,7 +207,7 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Guess rows go here -->
+          <!-- Guess rows will be appended here -->
         </tbody>
       </table>
     </div>
@@ -226,7 +227,7 @@
           </tr>
         </thead>
         <tbody>
-          <!-- History rows go here -->
+          <!-- History rows will be appended here -->
         </tbody>
       </table>
     </div>
@@ -236,8 +237,8 @@
     /*****************************
      * Characters Data           *
      *****************************/
-    // The characters array is now a curated list of 100 important Simpsons characters.
-    // Data such as age ranges, appearance counts (each episode counts once), and weight are approximate.
+    // The characters array is a curated list of 100 important Simpsons characters.
+    // Data values (age ranges, appearances, weight) are approximations.
     const characters = [
       { name: "HOMER SIMPSON",         ageRange: "36-45", ageMin: 36, ageMax: 45, gender: "Male",   simpson: true,  appearances: 700,  weight: 300 },
       { name: "MARGE SIMPSON",         ageRange: "36-45", ageMin: 36, ageMax: 45, gender: "Female", simpson: true,  appearances: 700,  weight: 150 },
@@ -296,10 +297,10 @@
     /*****************************
      * Daily Puzzle Functionality *
      *****************************/
-    // Get today's date string (YYYY-MM-DD)
+    // Today's date (YYYY-MM-DD)
     const todayKey = new Date().toISOString().slice(0,10);
     
-    // Deterministically choose a secret character based on today's date.
+    // Deterministically choose the secret character based on today's date.
     function hashString(str) {
       let hash = 0;
       for (let i = 0; i < str.length; i++) {
@@ -528,21 +529,21 @@
     /*****************************
      * Home / Splash Screen Logic *
      *****************************/
-    // If today's round was already played, show the splash screen; else show the home menu.
+    // If today's round was already played, show splash screen; else show home menu.
     if (localStorage.getItem("simpsonsDailyRound_" + todayKey)) {
       splashScreen.style.display = "flex";
     } else {
       homeMenu.style.display = "flex";
     }
     
-    // When "Play" is clicked from the home menu, show the game.
+    // When "Play" is clicked from home menu, show game.
     document.getElementById("playButton").addEventListener("click", function() {
       homeMenu.style.display = "none";
       gameContainer.style.display = "block";
       guessInput.focus();
     });
     
-    // When "View History" is clicked from the splash screen, show history.
+    // When "View History" is clicked from splash screen, show history.
     document.getElementById("viewHistoryButton").addEventListener("click", function() {
       splashScreen.style.display = "none";
       historyContainer.style.display = "block";
