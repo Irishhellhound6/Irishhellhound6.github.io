@@ -2,24 +2,39 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <!-- Responsive meta tag for mobile devices -->
+  <!-- Responsive meta tag -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>The Simpsons Daily Guessing Game</title>
   <style>
-    /* Global styling and centering */
-    body {
+    /* CSS Reset and base styles */
+    html, body {
       margin: 0;
       padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+      box-sizing: border-box;
+    }
+    *, *::before, *::after {
+      box-sizing: inherit;
+    }
+    
+    body {
       font-family: Arial, sans-serif;
       background: linear-gradient(135deg, #fdd835, #fbc02d);
       color: #333;
       text-align: center;
+      /* Ensure background covers all space */
+      min-height: 100%;
     }
+    
     .container {
+      width: 100%;
       max-width: 1200px;
-      margin: auto;
-      padding: 20px;
+      margin: 0 auto;
+      padding: 10px;
     }
+    
     /* Home Menu & Splash Screen styling */
     #home-menu, #splash-screen {
       display: flex;
@@ -28,13 +43,16 @@
       justify-content: center;
       min-height: 100vh;
       text-align: center;
+      padding: 10px;
     }
+    
     #home-menu h1, #splash-screen h1 {
       font-size: 3em;
       margin-bottom: 20px;
       color: #e2a900;
       text-shadow: 2px 2px 4px #555;
     }
+    
     #home-menu button, #splash-screen button {
       font-size: 1.5em;
       padding: 10px 20px;
@@ -47,26 +65,32 @@
       transition: background-color 0.3s;
       margin-top: 10px;
     }
+    
     #home-menu button:hover, #splash-screen button:hover {
       background-color: #c38e00;
     }
+    
     /* Game and History Containers */
     #game-container, #history-container {
       display: none;
       margin-top: 20px;
     }
+    
     h2 {
       margin-top: 20px;
       color: #333;
     }
+    
     p {
       font-size: 1.1em;
     }
-    /* Responsive table container to avoid horizontal scroll */
+    
+    /* Make table container use full width */
     .table-container {
       width: 100%;
       overflow-x: auto;
     }
+    
     /* Table styling with Simpsons-themed flair */
     table {
       width: 100%;
@@ -79,6 +103,7 @@
       margin: 20px auto;
       table-layout: fixed;
     }
+    
     th, td {
       border: 1px solid #e2a900;
       padding: 8px 4px;
@@ -86,23 +111,28 @@
       word-wrap: break-word;
       font-size: 0.95em;
     }
+    
     th {
       background-color: #f7d488;
       font-weight: bold;
     }
+    
     .correct {
       background-color: #6aaa64;
       color: white;
     }
+    
     .incorrect {
       background-color: #787c7e;
       color: white;
     }
+    
     .hint {
       font-size: 0.8em;
       margin-top: 3px;
       color: #333;
     }
+    
     /* Autocomplete styling */
     .autocomplete-container {
       position: relative;
@@ -111,15 +141,16 @@
       max-width: 320px;
       margin-bottom: 20px;
     }
+    
     input[type="text"] {
       font-size: 1.2em;
       padding: 5px;
       width: 100%;
       text-transform: uppercase;
-      box-sizing: border-box;
       border: 2px solid #ccc;
       border-radius: 5px;
     }
+    
     #suggestions {
       position: absolute;
       top: 100%;
@@ -133,13 +164,16 @@
       z-index: 1000;
       border-radius: 0 0 5px 5px;
     }
+    
     .suggestion-item {
       padding: 5px;
       cursor: pointer;
     }
+    
     .suggestion-item:hover {
       background: #eee;
     }
+    
     button {
       font-size: 1.2em;
       padding: 5px 10px;
@@ -148,18 +182,19 @@
       border-radius: 5px;
       cursor: pointer;
     }
-    /* Media queries for improved responsiveness on phones */
+    
+    /* Additional media queries for phones */
     @media (max-width: 600px) {
       h1 { font-size: 2.5em; }
       h2 { font-size: 1.8em; }
       p, th, td, input[type="text"] { font-size: 0.9em; }
-      .autocomplete-container, table { width: 95%; }
+      .autocomplete-container, .table-container { width: 100%; }
       th, td { padding: 4px 2px; }
     }
   </style>
 </head>
 <body>
-  <!-- Splash Screen for when today's round is complete -->
+  <!-- Splash Screen -->
   <div id="splash-screen" class="container" style="display:none;">
     <h1>Come Back Tomorrow!</h1>
     <p>You have already played today's round.</p>
@@ -195,7 +230,7 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Guess rows go here -->
+          <!-- Guess rows will be appended here -->
         </tbody>
       </table>
     </div>
@@ -215,7 +250,7 @@
           </tr>
         </thead>
         <tbody>
-          <!-- History rows go here -->
+          <!-- History rows will be appended here -->
         </tbody>
       </table>
     </div>
@@ -225,8 +260,9 @@
     /*****************************
      * Characters Data           *
      *****************************/
-    // The following array is a curated list of 100 important Simpsons characters.
-    // Data such as age range, appearance counts (each episode counts once), hair color, and weight are approximate.
+    // The characters array is a curated list of 100 important Simpsons characters,
+    // including the Simpson family, Flanders family, Bouvier sisters, and many recurring characters.
+    // Data values (age, appearances, hair color, weight) are approximations based on sources such as Wikipedia and Simpsons Wiki.
     const characters = [
       { name: "HOMER SIMPSON",         ageRange: "36-45", ageMin: 36, ageMax: 45, gender: "Male",   simpson: true,  appearances: 700,  hairColor: "Bald",    weight: 300 },
       { name: "MARGE SIMPSON",         ageRange: "36-45", ageMin: 36, ageMax: 45, gender: "Female", simpson: true,  appearances: 700,  hairColor: "Blue",    weight: 150 },
@@ -248,9 +284,9 @@
       { name: "LENNY LEONARD",         ageRange: "35-45", ageMin: 35, ageMax: 45, gender: "Male",   simpson: false, appearances: 300, hairColor: "Brown",   weight: 180 },
       { name: "CARL CARLSON",          ageRange: "35-45", ageMin: 35, ageMax: 45, gender: "Male",   simpson: false, appearances: 300, hairColor: "Brown",   weight: 180 },
       { name: "COMIC BOOK GUY",        ageRange: "35-45", ageMin: 35, ageMax: 45, gender: "Male",   simpson: false, appearances: 250, hairColor: "Grey",    weight: 190 },
-      { name: "SIDESHOW BOB",          ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 60,  hairColor: "Brown",   weight: 160 },
-      { name: "SIDESHOW MEL",          ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 40,  hairColor: "Blonde",  weight: 165 },
-      { name: "KRUSTY THE CLOWN",      ageRange: "45-55", ageMin: 45, ageMax: 55, gender: "Male",   simpson: false, appearances: 100, hairColor: "None",    weight: 180 },
+      { name: "SIDESHOW BOB",          ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 14,  hairColor: "Brown",   weight: 160 },
+      { name: "SIDESHOW MEL",          ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 8,   hairColor: "Blonde",  weight: 165 },
+      { name: "KRUSTY THE CLOWN",      ageRange: "45-55", ageMin: 45, ageMax: 55, gender: "Male",   simpson: false, appearances: 20,  hairColor: "None",    weight: 180 },
       { name: "PRINCIPAL SKINNER",     ageRange: "50-60", ageMin: 50, ageMax: 60, gender: "Male",   simpson: false, appearances: 230, hairColor: "Brown",   weight: 160 },
       { name: "EDNA KRABAPPEL",        ageRange: "45-55", ageMin: 45, ageMax: 55, gender: "Female", simpson: false, appearances: 140, hairColor: "Grey",    weight: 140 },
       { name: "AGNES SKINNER",         ageRange: "60-70", ageMin: 60, ageMax: 70, gender: "Female", simpson: false, appearances: 60,  hairColor: "Grey",    weight: 120 },
@@ -279,16 +315,20 @@
       { name: "FAT TONY",             ageRange: "50-60", ageMin: 50, ageMax: 60, gender: "Male",   simpson: false, appearances: 15,  hairColor: "Black",   weight: 230 },
       { name: "TROY MCCLURE",          ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 10,  hairColor: "Brown",   weight: 160 },
       { name: "DR. HIBBERT",          ageRange: "50-60", ageMin: 50, ageMax: 60, gender: "Male",   simpson: false, appearances: 200, hairColor: "Grey",    weight: 170 },
-      { name: "REVEREND LOVEJOY",     ageRange: "50-60", ageMin: 50, ageMax: 60, gender: "Male",   simpson: false, appearances: 140, hairColor: "Grey",    weight: 160 }
+      { name: "REVEREND LOVEJOY",     ageRange: "50-60", ageMin: 50, ageMax: 60, gender: "Male",   simpson: false, appearances: 140, hairColor: "Grey",    weight: 160 },
+      { name: "JUDGE ROY SNYDER",      ageRange: "40-50", ageMin: 40, ageMax: 50, gender: "Male",   simpson: false, appearances: 40,  hairColor: "Brown",   weight: 160 },
+      { name: "DUFFMAN",              ageRange: "30-40", ageMin: 30, ageMax: 40, gender: "Male",   simpson: false, appearances: 15,  hairColor: "Blonde",  weight: 150 },
+      { name: "JULIO",                ageRange: "30-40", ageMin: 30, ageMax: 40, gender: "Male",   simpson: false, appearances: 90,  hairColor: "Black",   weight: 150 },
+      { name: "ARTIE ZIFF",           ageRange: "35-45", ageMin: 35, ageMax: 45, gender: "Male",   simpson: false, appearances: 8,   hairColor: "Brown",   weight: 150 }
     ];
     
     /*****************************
      * Daily Puzzle Functionality *
      *****************************/
-    // Today's date string (YYYY-MM-DD)
+    // Get today's date (YYYY-MM-DD)
     const todayKey = new Date().toISOString().slice(0,10);
     
-    // Generate a hash from today's date to choose a secret character deterministically.
+    // Deterministic daily secret based on a hash of today's date.
     function hashString(str) {
       let hash = 0;
       for (let i = 0; i < str.length; i++) {
@@ -523,7 +563,7 @@
     /*****************************
      * Home / Splash Screen Logic *
      *****************************/
-    // If today's round was already played, show splash screen; else show home menu.
+    // If today's round has been played, show splash screen; else show home menu.
     if (localStorage.getItem("simpsonsDailyRound_" + todayKey)) {
       splashScreen.style.display = "flex";
     } else {
@@ -542,8 +582,10 @@
       splashScreen.style.display = "none";
       historyContainer.style.display = "block";
     });
+    
   </script>
 </body>
 </html>
+
 
 
